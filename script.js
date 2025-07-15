@@ -1,7 +1,7 @@
 const RANGES = {
   face: 12,
   nose: 20,
-  pupil: 20
+  pupil: 22
 };
 
 class CatHeadController {
@@ -21,10 +21,12 @@ class CatHeadController {
 
     this.mouse = { x: 0, y: 0 };
     this.catCenter = { x: 0, y: 0 };
+    this.catScale = 1;
     this.isInitialized = false;
     
     this.textRevealOrder = ['sirGibblets', 'doesntLike', 'yourFace'];
     this.revealedTexts = new Set();
+    this.nextRevealTime = 0;
 
     this.idleTimeout = null;
     this.idleInterval = null;
@@ -71,6 +73,8 @@ class CatHeadController {
       x: containerRect.left + containerRect.width / 2,
       y: containerRect.top + containerRect.height / 2
     };
+    const catSize = parseFloat(getComputedStyle(this.elements.container).getPropertyValue('--cat-size'));
+    this.catScale = catSize / 400;
   }
 
   bindEvents() {
@@ -201,25 +205,29 @@ class CatHeadController {
   }
 
   updateFace(deltaX, deltaY, normalizedDistance) {
-    const moveX = (deltaX / window.innerWidth) * RANGES.face * normalizedDistance;
-    const moveY = (deltaY / window.innerHeight) * RANGES.face * normalizedDistance;
+    const range = RANGES.face * this.catScale;
+    const moveX = (deltaX / window.innerWidth) * range * normalizedDistance;
+    const moveY = (deltaY / window.innerHeight) * range * normalizedDistance;
     this.elements.face.style.transform = `translate(${moveX}px, ${moveY}px)`;
     this.elements.pupilContainer.style.transform = `translate(${moveX}px, ${moveY}px)`;
   }
 
   updateNose(deltaX, deltaY, normalizedDistance) {
-    const moveX = (deltaX / window.innerWidth) * RANGES.nose * normalizedDistance;
-    const moveY = (deltaY / window.innerHeight) * RANGES.nose * normalizedDistance;
+    const range = RANGES.nose * this.catScale;
+    const moveX = (deltaX / window.innerWidth) * range * normalizedDistance;
+    const moveY = (deltaY / window.innerHeight) * range * normalizedDistance;
     this.elements.nose.style.transform = `translate(${moveX}px, ${moveY}px)`;
   }
 
   updatePupils(deltaX, deltaY, normalizedDistance) {
-    const moveX = (deltaX / window.innerWidth) * RANGES.pupil * normalizedDistance;
-    const moveY = (deltaY / window.innerHeight) * RANGES.pupil * normalizedDistance;
+    const range = RANGES.pupil * this.catScale;
+    const moveX = (deltaX / window.innerWidth) * range * normalizedDistance;
+    const moveY = (deltaY / window.innerHeight) * range * normalizedDistance;
     this.elements.pupils.style.transform = `translate(${moveX}px, ${moveY}px)`;
   }
 
   checkTextReveal() {
+    if (Date.now() < this.nextRevealTime) return;
     for (let i = 0; i < this.textRevealOrder.length; i++) {
       const textKey = this.textRevealOrder[i];
       const textElement = this.elements.textElements[textKey];
@@ -232,6 +240,7 @@ class CatHeadController {
       
       if (canReveal && this.isMouseOverElement(textElement)) {
         this.revealText(textKey, textElement);
+        this.nextRevealTime = Date.now() + 1000;
         break;
       }
     }
