@@ -1,0 +1,37 @@
+{
+    # Global options
+    admin off
+    auto_https off
+}
+
+:80 {
+    # Serve files from /srv directory
+    root * /srv
+    
+    # Enable file serving
+    file_server
+    
+    # Set proper MIME types and security headers
+    header {
+        X-Frame-Options DENY
+        X-Content-Type-Options nosniff
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy strict-origin-when-cross-origin
+        Cache-Control "public, max-age=31536000" {
+            path *.png
+            path *.jpg
+            path *.jpeg
+            path *.gif
+            path *.webp
+            path *.css
+            path *.js
+        }
+        Cache-Control "no-cache, no-store, must-revalidate" {
+            path *.html
+            path /
+        }
+    }
+    
+    # Gzip compression
+    encode gzip
+}
