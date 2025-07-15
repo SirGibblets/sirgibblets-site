@@ -44,6 +44,8 @@ body {
   overflow: hidden;
   user-select: none;
   transition: 0.6s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .spotlight {

@@ -18,7 +18,19 @@ class CatHeadController {
     this.catCenter = { x: 0, y: 0 };
     this.isInitialized = false;
 
+    this.idleTimeout = null;
+    this.idleInterval = null;
+    this.isIdle = false;
+    this.isMobile = this.detectMobile();
+
     this.init();
+  }
+
+  detectMobile() {
+    return (
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      (window.matchMedia && window.matchMedia("(pointer: coarse)").matches)
+    );
   }
 
   init() {
@@ -54,15 +66,46 @@ class CatHeadController {
   }
 
   bindEvents() {
-    document.addEventListener('mousemove', this.handleMouseMove.bind(this));
+    this.handleUserActivity = this.handleUserActivity.bind(this);
+    this.handleMouseMove = this.handleMouseMove.bind(this);
+
+    document.addEventListener('mousemove', this.handleUserActivity);
     window.addEventListener('resize', this.handleResize.bind(this));
     this.elements.container.addEventListener('click', this.handleCatClick.bind(this));
+    document.addEventListener('touchmove', this.handleUserActivity);
+
+    this.resetIdleTimer();
+
+    if (this.isMobile) {
+      this.startIdleAnimation();
+    }
+  }
+
+  handleUserActivity(event) {
+    if (this.isIdle) {
+      this.stopIdleAnimation();
+    }
+    this.resetIdleTimer();
+
+    if (event.type === 'mousemove') {
+      this.handleMouseMove(event);
+    } else if (event.type === 'touchmove' && event.touches && event.touches.length > 0) {
+      const touch = event.touches[0];
+      this.handleTouchMove(touch);
+    }
   }
 
   handleMouseMove(event) {
     if (!this.isInitialized) return;
     this.mouse.x = event.clientX;
     this.mouse.y = event.clientY;
+    this.updateLayers();
+  }
+
+  handleTouchMove(touch) {
+    if (!this.isInitialized) return;
+    this.mouse.x = touch.clientX;
+    this.mouse.y = touch.clientY;
     this.updateLayers();
   }
 
@@ -91,6 +134,47 @@ class CatHeadController {
     this.updateFace(deltaX, deltaY, normalizedDistance);
     this.updateNose(deltaX, deltaY, normalizedDistance);
     this.updatePupils(deltaX, deltaY, normalizedDistance);
+  }
+
+  resetIdleTimer() {
+    if (this.idleTimeout) clearTimeout(this.idleTimeout);
+    if (this.isIdle) this.stopIdleAnimation();
+    const timeout = this.isMobile ? 2000 : 5000;
+    this.idleTimeout = setTimeout(() => {
+      this.startIdleAnimation();
+    }, timeout);
+  }
+
+  startIdleAnimation() {
+    if (this.isIdle) return;
+    this.isIdle = true;
+    document.body.style.cursor = 'none';
+    this.runIdleStep(true);
+  }
+
+  stopIdleAnimation() {
+    this.isIdle = false;
+    document.body.style.cursor = '';
+    if (this.idleInterval) clearTimeout(this.idleInterval);
+    this.idleInterval = null;
+  }
+
+  runIdleStep(reset = false) {
+    if (!this.isIdle) return;
+    const padding = 40;
+    if (reset || Math.random() < 0.2) {
+      this.mouse.x = this.catCenter.x;
+      this.mouse.y = this.catCenter.y;
+    } else {
+      const x = Math.random() * (window.innerWidth - 2 * padding) + padding;
+      const y = Math.random() * (window.innerHeight - 2 * padding) + padding;
+      this.mouse.x = x;
+      this.mouse.y = y;
+    }
+    this.updateLayers();
+
+    const nextDelay = 500 + Math.random() * 1500;
+    this.idleInterval = setTimeout(() => this.runIdleStep(), nextDelay);
   }
 
   updateFace(deltaX, deltaY, normalizedDistance) {
