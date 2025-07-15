@@ -7,6 +7,7 @@
 :root,
 .light-theme {
   --bg-color: #ffffff;
+  --text-color: #000000;
   --spotlight-color-1: #1a9bf2;
   --spotlight-color-2: #d70036;
 }
@@ -14,6 +15,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-color: #0c0c0c;
+    --text-color: #ffffff;
     --spotlight-color-1: #207ebd;
     --spotlight-color-2: #25a558;
   }
@@ -46,6 +48,8 @@ body {
   transition: 0.6s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  font-family: "Permanent Marker", cursive;
+  color: var(--text-color);
 }
 
 .spotlight {
@@ -165,5 +169,93 @@ body {
 @keyframes fadeIn {
   to {
     opacity: 1;
+  }
+}
+
+.text-sir-gibblets {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 6.5rem;
+  font-weight: bold;
+  text-align: center;
+  background: linear-gradient(90deg, var(--spotlight-color-1), var(--spotlight-color-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.08em;
+  top: calc((100vh - var(--cat-size)) * 0.4);
+  width: 100vw;
+  transition: font-size 0.3s ease, transform 0.3s ease, opacity 1s ease;
+  text-wrap: nowrap;
+  opacity: 0;
+}
+
+.text-doesnt-like,
+.text-your-face {
+  position: absolute;
+  bottom: calc(var(--cat-size) / 2);
+  text-wrap: nowrap;
+  transition: font-size 0.3s ease, left 0.3s ease, transform 0.3s ease, opacity 1s ease;
+  opacity: 0;
+}
+
+.text-doesnt-like {
+  font-size: 2.5rem;
+  left: calc(50% - var(--cat-size) / 2 + 1rem);
+  transform: translate(-100%, 50%);
+}
+
+.text-your-face {
+  font-size: 3.25rem;
+  left: calc(50% + var(--cat-size) / 2 - 1rem);
+  transform: translateY(50%);
+}
+
+.revealed {
+  opacity: 1.0;
+}
+
+@media (max-width: 900px) {
+  .text-sir-gibblets {
+    font-size: 5rem;
+  }
+
+  .text-doesnt-like {
+    font-size: 2rem;
+  }
+
+  .text-your-face {
+    font-size: 2.625rem;
+  }
+}
+
+@media (max-width: 768px){
+  .text-sir-gibblets {
+    font-size: 3.5rem;
+    transform: translate(calc(-50% - 0.1rem), calc(-50% - 4.2rem));
+  }
+
+  .text-doesnt-like,
+  .text-your-face {
+    position: absolute;
+    bottom: unset;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.5rem;
+    top: calc((100vh - var(--cat-size)) * 0.4);
+    width: 100vw;
+    text-align: center;
+  }
+  
+  .text-doesnt-like {
+    font-size: 3.1rem;
+    font-weight: 100;
+  }
+
+  .text-your-face {
+    font-size: 4rem;
+    transform: translate(-50%, calc(-50% + 4rem));
   }
 }

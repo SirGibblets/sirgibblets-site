@@ -11,12 +11,20 @@ class CatHeadController {
       nose: document.querySelector('.cat-nose'),
       pupils: document.querySelector('.cat-pupils'),
       pupilContainer: document.querySelector('.pupil-container'),
-      container: document.querySelector('.cat-container')
+      container: document.querySelector('.cat-container'),
+      textElements: {
+        sirGibblets: document.querySelector('.text-sir-gibblets'),
+        doesntLike: document.querySelector('.text-doesnt-like'),
+        yourFace: document.querySelector('.text-your-face')
+      }
     };
 
     this.mouse = { x: 0, y: 0 };
     this.catCenter = { x: 0, y: 0 };
     this.isInitialized = false;
+    
+    this.textRevealOrder = ['sirGibblets', 'doesntLike', 'yourFace'];
+    this.revealedTexts = new Set();
 
     this.idleTimeout = null;
     this.idleInterval = null;
@@ -71,6 +79,11 @@ class CatHeadController {
 
     document.addEventListener('mousemove', this.handleUserActivity);
     window.addEventListener('resize', this.handleResize.bind(this));
+    
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', this.handleViewportResize.bind(this));
+    }
+    
     this.elements.container.addEventListener('click', this.handleCatClick.bind(this));
     document.addEventListener('touchmove', this.handleUserActivity);
 
@@ -125,6 +138,15 @@ class CatHeadController {
     }
   }
 
+  handleViewportResize() {
+    this.calculateCatCenter();
+    if (this.isInitialized) {
+      this.mouse.x = this.catCenter.x;
+      this.mouse.y = this.catCenter.y;
+      this.updateLayers();
+    }
+  }
+
   updateLayers() {
     const deltaX = this.mouse.x - this.catCenter.x;
     const deltaY = this.mouse.y - this.catCenter.y;
@@ -134,6 +156,7 @@ class CatHeadController {
     this.updateFace(deltaX, deltaY, normalizedDistance);
     this.updateNose(deltaX, deltaY, normalizedDistance);
     this.updatePupils(deltaX, deltaY, normalizedDistance);
+    this.checkTextReveal();
   }
 
   resetIdleTimer() {
@@ -194,6 +217,39 @@ class CatHeadController {
     const moveX = (deltaX / window.innerWidth) * RANGES.pupil * normalizedDistance;
     const moveY = (deltaY / window.innerHeight) * RANGES.pupil * normalizedDistance;
     this.elements.pupils.style.transform = `translate(${moveX}px, ${moveY}px)`;
+  }
+
+  checkTextReveal() {
+    for (let i = 0; i < this.textRevealOrder.length; i++) {
+      const textKey = this.textRevealOrder[i];
+      const textElement = this.elements.textElements[textKey];
+      
+      if (this.revealedTexts.has(textKey)) {
+        continue;
+      }
+      
+      const canReveal = i === 0 || this.revealedTexts.has(this.textRevealOrder[i - 1]);
+      
+      if (canReveal && this.isMouseOverElement(textElement)) {
+        this.revealText(textKey, textElement);
+        break;
+      }
+    }
+  }
+
+  isMouseOverElement(element) {
+    const rect = element.getBoundingClientRect();
+    return (
+      this.mouse.x >= rect.left &&
+      this.mouse.x <= rect.right &&
+      this.mouse.y >= rect.top &&
+      this.mouse.y <= rect.bottom
+    );
+  }
+
+  revealText(textKey, textElement) {
+    textElement.classList.add('revealed');
+    this.revealedTexts.add(textKey);
   }
 }
 
