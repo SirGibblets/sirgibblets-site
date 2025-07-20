@@ -23,7 +23,7 @@ class CatHeadController {
     this.catCenter = { x: 0, y: 0 };
     this.catScale = 1;
     this.isInitialized = false;
-    
+
     this.textRevealOrder = ['sirGibblets', 'doesntLike', 'yourFace'];
     this.revealedTexts = new Set();
     this.nextRevealTime = 0;
@@ -83,11 +83,11 @@ class CatHeadController {
 
     document.addEventListener('mousemove', this.handleUserActivity);
     window.addEventListener('resize', this.handleResize.bind(this));
-    
+
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', this.handleViewportResize.bind(this));
     }
-    
+
     this.elements.container.addEventListener('click', this.handleCatClick.bind(this));
     document.addEventListener('touchmove', this.handleUserActivity);
 
@@ -127,11 +127,13 @@ class CatHeadController {
   }
 
   handleCatClick() {
-    const body = document.body;
-    if (body.classList.contains('light-theme')) {
-      body.classList.remove('light-theme');
+    const html = document.documentElement;
+    if (html.classList.contains('light-mode')) {
+      html.classList.remove('light-mode');
+      html.classList.add('dark-mode');
     } else {
-      body.classList.add('light-theme');
+      html.classList.remove('dark-mode');
+      html.classList.add('light-mode');
     }
   }
 
@@ -231,13 +233,13 @@ class CatHeadController {
     for (let i = 0; i < this.textRevealOrder.length; i++) {
       const textKey = this.textRevealOrder[i];
       const textElement = this.elements.textElements[textKey];
-      
+
       if (this.revealedTexts.has(textKey)) {
         continue;
       }
-      
+
       const canReveal = i === 0 || this.revealedTexts.has(this.textRevealOrder[i - 1]);
-      
+
       if (canReveal && this.isMouseOverElement(textElement)) {
         this.revealText(textKey, textElement);
         this.nextRevealTime = Date.now() + 1000;

@@ -4,21 +4,18 @@
   --easing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-:root,
-.light-theme {
+.light-mode {
   --bg-color: #ffffff;
   --text-color: #000000;
   --spotlight-color-1: #1a9bf2;
   --spotlight-color-2: #d70036;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #000000;
-    --text-color: #ffffff;
-    --spotlight-color-1: #207ebd;
-    --spotlight-color-2: #25a558;
-  }
+.dark-mode {
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --spotlight-color-1: #207ebd;
+  --spotlight-color-2: #25a558;
 }
 
 
@@ -230,7 +227,7 @@ body {
   }
 }
 
-@media (max-width: 768px){
+@media (max-width: 768px) {
   .text-sir-gibblets {
     font-size: 3.5rem;
     transform: translate(calc(-50% - 0.1rem), calc(-50% - 4.2rem));
@@ -247,7 +244,7 @@ body {
     width: 100vw;
     text-align: center;
   }
-  
+
   .text-doesnt-like {
     font-size: 3.1rem;
     font-weight: 100;
